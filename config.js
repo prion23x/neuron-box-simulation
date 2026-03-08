@@ -74,10 +74,14 @@ export const ION_POPULATION = []; // List of all ion particles in the simulation
 
 export const SHOW_LABELS = true; // Draws labels on top of particles (Na, K, etc.)
 export const SHOW_FORCE_RADIUS = true; // Draws a circle around each particle to visualize the interaction radius.
+export const SHOW_FORCE_DIRECTION = true; // Draws a direction arrow for the net force on each ion.
+export const FORCE_VECTOR_LENGTH = 28; // Arrow length in pixels (normalized force direction).
+export const FORCE_VECTOR_WIDTH = 2; // Arrow line width.
+export const FORCE_VECTOR_HEAD_SIZE = 8; // Arrow head size in pixels.
 
 // Why radius^2? at small scale the forces are very strong, so we need to scale them down more aggressively to avoid chaos.
-export const ION_FIELD_RADIUS = 160 * radius_factor * radius_factor; // Radius within which ions will attract/repel each other.
-export const ION_FORCE_SCALE = 0.02 * radius_factor * radius_factor;   // Scales Coulombic repulsion/attraction between ions
+export const ION_FIELD_RADIUS = 160 * radius_factor * radius_factor * radius_factor; // Radius within which ions will attract/repel each other.
+export const ION_FORCE_SCALE = 0.02 * radius_factor;   // Scales Coulombic repulsion/attraction between ions
 export const RANDOM_JITTER_FORCE = 0.0002 * radius_factor * radius_factor; // Random jitter to simulate thermal motion (temperature effect)
 export const GLOBAL_TEMPERATURE = 36 // CURRENTLY UNDER DEVELOPMENT: Higher temperature = more vibration (simulation only)
 
@@ -93,4 +97,3 @@ export const ION_STATS = {
   EXTRA_IONS_COUNT: _createZeroIonDict(),
   GRADIENTS: _createZeroIonDict() // ratio of INTRA to EXTRA for each ion.
 }
-

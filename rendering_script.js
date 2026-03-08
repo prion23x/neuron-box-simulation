@@ -13,21 +13,88 @@ import {
   GLOBAL_TEMPERATURE,
   CHANNEL_PROXIMITY,
   CHANNEL_IMPACT_COLOR,
-  SHOW_CHANNEL_IMPACT_RADIUS
+  SHOW_CHANNEL_IMPACT_RADIUS,
+  SHOW_FORCE_DIRECTION,
+  FORCE_VECTOR_LENGTH,
+  FORCE_VECTOR_WIDTH,
+  FORCE_VECTOR_HEAD_SIZE
 } from "./config.js";
 import { LEAK_INDICES, getIonConcentrationGradient } from "./particles_script.js";
 
 
+const MIN_FORCE_VECTOR_MAGNITUDE = 1e-12;
+
+function resetForceVectors() {
+  for (const ion of ION_POPULATION) {
+    if (!ion.netForceVector) {
+      ion.netForceVector = { x: 0, y: 0 };
+    } else {
+      ion.netForceVector.x = 0;
+      ion.netForceVector.y = 0;
+    }
+  }
+}
+
+function applyTrackedForce(ion, force, trackDirection = true) {
+  Body.applyForce(ion, ion.position, force);
+
+  // Jitter force is intentionally ignored for direction rendering to reduce visual noise.
+  if (!trackDirection) return;
+
+  ion.netForceVector.x += force.x;
+  ion.netForceVector.y += force.y;
+}
+
+function drawForceDirectionArrow(ctx, ion) {
+  const vector = ion.netForceVector;
+  if (!vector) return;
+
+  const magnitude = Math.hypot(vector.x, vector.y);
+  if (magnitude < MIN_FORCE_VECTOR_MAGNITUDE) return;
+
+  // normalizin to unit vectors
+  const ux = vector.x / magnitude;
+  const uy = vector.y / magnitude; 
+
+  const startX = ion.position.x;
+  const startY = ion.position.y;
+  const endX = startX + ux * FORCE_VECTOR_LENGTH;
+  const endY = startY + uy * FORCE_VECTOR_LENGTH;
+
+  const perpX = -uy;
+  const perpY = ux;
+  const halfHeadWidth = FORCE_VECTOR_HEAD_SIZE * 0.5;
+  const headBaseX = endX - ux * FORCE_VECTOR_HEAD_SIZE;
+  const headBaseY = endY - uy * FORCE_VECTOR_HEAD_SIZE;
+
+  ctx.strokeStyle = ion.color;
+  ctx.fillStyle = ion.color;
+  ctx.lineWidth = FORCE_VECTOR_WIDTH;
+
+  ctx.beginPath();
+  ctx.moveTo(startX, startY);
+  ctx.lineTo(endX, endY);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(endX, endY);
+  ctx.lineTo(headBaseX + perpX * halfHeadWidth, headBaseY + perpY * halfHeadWidth);
+  ctx.lineTo(headBaseX - perpX * halfHeadWidth, headBaseY - perpY * halfHeadWidth);
+  ctx.closePath();
+  ctx.fill();
+}
+
 
 Events.on(engine, "beforeUpdate", () => {
+  resetForceVectors();
 
   // Vibration, immitation themal motion of particles. 
   const magnitude = RANDOM_JITTER_FORCE * (1 + GLOBAL_TEMPERATURE / 100); // Higher temperature = more jitter
   for (let bee of ION_POPULATION) {
-    Body.applyForce(bee, bee.position, {
+    applyTrackedForce(bee, {
       x: (Math.random() - 0.5) * magnitude,
       y: (Math.random() - 0.5) * magnitude
-    });
+    }, false);
   }
 
 
@@ -41,8 +108,8 @@ Events.on(engine, "beforeUpdate", () => {
       const dist = Math.hypot(dx, dy);
       if (dist < ION_FIELD_RADIUS && dist > 0.5) {
         let force = ION_FORCE_SCALE * (a.charge * b.charge) / (dist * dist); // a*b automatically adjusts the magnitude and direction of the force
-        Body.applyForce(a, a.position, { x: -dx * force, y: -dy * force });
-        Body.applyForce(b, b.position, { x: dx * force, y: dy * force });
+        applyTrackedForce(a, { x: -dx * force, y: -dy * force });
+        applyTrackedForce(b, { x: dx * force, y: dy * force });
       }
     }
   }
@@ -72,7 +139,7 @@ Events.on(engine, "beforeUpdate", () => {
         const rdy = ion.position.y - cy;
         const rdist = Math.hypot(rdx, rdy) || 1;
 
-        Body.applyForce(ion, ion.position, {
+        applyTrackedForce(ion, {
           x: (rdx / rdist) * deviation * FORCE_SCALE,
           y: (rdy / rdist) * deviation * FORCE_SCALE
         });
@@ -110,6 +177,14 @@ Events.on(render, "afterRender", () => {
     }
   }
 
+  if (SHOW_FORCE_DIRECTION) {
+    ctx.save();
+    for (const bee of ION_POPULATION) {
+      drawForceDirectionArrow(ctx, bee);
+    }
+    ctx.restore();
+  }
+
   if (SHOW_CHANNEL_IMPACT_RADIUS) {
     ctx.lineWidth = 4;
     ctx.strokeStyle = CHANNEL_IMPACT_COLOR;
@@ -130,4 +205,3 @@ Events.on(render, "afterRender", () => {
     }
   }
 })
-

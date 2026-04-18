@@ -119,7 +119,7 @@ setInterval(() => {
     const pointerX = pointerPosition ? pointerPosition.x.toFixed(1) : 'N/A';
     const pointerY = pointerPosition ? pointerPosition.y.toFixed(1) : 'N/A';
 
-    const FLUX = Math.round(100 * (STATS.kGradient * STATS.normalizedEfieldForce)) || 0;
+    const FLUX = (100 * (STATS.kGradient * STATS.normalizedEfieldForce)).toFixed(2) || 0;
 
     addRowToPanel(`K+ Flux: ${FLUX}%`, MEMBRANE_STATE_PANEL);
     addRowToPanel("RULER", MEMBRANE_STATE_PANEL);

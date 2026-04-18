@@ -57,8 +57,8 @@ export const physicsConfig = {
   COULOMB_MIN_DISTANCE_SCALAR: 3, // ions on distance of 3x diameter or less will experience a capped force to avoid instability.,
 
 
-  FLUX_FORCE_MAGNITUDE: 0.00001, // Attraction force towards the channel for permeable ions.
-  FLUX_LINEAR_PUSH_SCALAR: 1.05, // Exponentially increases the push force as ions get closer to the channel
+  FLUX_FORCE_MAGNITUDE: 0.00005, // Attraction force towards the channel for permeable ions.
+  FLUX_LINEAR_PUSH_SCALAR: 1.3, // Exponentially increases the push force as ions get closer to the channel
 
 
 }

@@ -104,24 +104,24 @@ setInterval(() => {
     clearPanel(MEMBRANE_STATE_PANEL);
     clearPanel(SIMULATION_INFO_PANEL);
 
-
-    const vm = parseFloat(STATS.vm)?.toFixed(2) || 'N/A';
+    console.log(STATS.vm, STATS.equilibriumPotential);
+    const vm = parseFloat(STATS.vm)?.toFixed(2) || 0;
     const equilibriumPotential = parseFloat(STATS.equilibriumPotential)?.toFixed(2) || 'N/A';
-    const kGradient = Math.round(parseFloat(STATS.kGradient) * 100) || 'N/A';
-    const normalizedEfieldForce = Math.round(parseFloat(STATS.normalizedEfieldForce) * 100) || 'N/A';
-    const insideCharge = parseFloat(STATS.insideCharge)?.toFixed(2) || 'N/A';
-    const outsideCharge = parseFloat(STATS.outsideCharge)?.toFixed(2) || 'N/A';
-    const chargeDifference = parseFloat(STATS.chargeDifference)?.toFixed(2) || 'N/A';
-    const vmProxy = Math.round(parseFloat(STATS.vmProxy) * 100) || 'N/A';
-    const kInside = parseFloat(STATS.kInside)?.toFixed(2) || 'N/A';
-    const kOutside = parseFloat(STATS.kOutside)?.toFixed(2) || 'N/A';
+    const kGradient = Math.round(parseFloat(STATS.kGradient) * 100) || 0;
+    const normalizedEfieldForce = Math.round(parseFloat(STATS.normalizedEfieldForce) * 100) || 0;
+    const insideCharge = parseFloat(STATS.insideCharge)?.toFixed(2) || 0;
+    const outsideCharge = parseFloat(STATS.outsideCharge)?.toFixed(2) || 0;
+    const chargeDifference = parseFloat(STATS.chargeDifference)?.toFixed(2) || 0;
+    const vmProxy = Math.round(parseFloat(STATS.vmProxy) * 100) || 0;
+    const kInside = parseFloat(STATS.kInside)?.toFixed(2) || 0;
+    const kOutside = parseFloat(STATS.kOutside)?.toFixed(2) || 0;
     const pointerPosition = getCurrentPointerWorldPosition();
     const pointerX = pointerPosition ? pointerPosition.x.toFixed(1) : 'N/A';
     const pointerY = pointerPosition ? pointerPosition.y.toFixed(1) : 'N/A';
 
-    const FLUX = Math.round(100 * (kGradient * normalizedEfieldForce)) || 'N/A';
+    const FLUX = Math.round(100 * (STATS.kGradient * STATS.normalizedEfieldForce)) || 0;
 
-    addRowToPanel(`K+ Flux: ${FLUX}`, MEMBRANE_STATE_PANEL);
+    addRowToPanel(`K+ Flux: ${FLUX}%`, MEMBRANE_STATE_PANEL);
     addRowToPanel("RULER", MEMBRANE_STATE_PANEL);
     addRowToPanel(`Membrane Voltage: ${vm} mV`, MEMBRANE_STATE_PANEL);
     addRowToPanel(`Equilibrium Potential: ${equilibriumPotential} mV`, MEMBRANE_STATE_PANEL);

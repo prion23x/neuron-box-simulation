@@ -22,105 +22,6 @@ const FLUX_LINEAR_PUSH_SCALAR = physicsConfig.FLUX_LINEAR_PUSH_SCALAR; // Expone
 
 // -------------------------------------------------------------------
 
-
-// function getMembranePotential(charge_inside, charge_outside, width_px = BOX.width / 2, height_px = BOX.height, depth_px = BOX.depth) {
-//     const e = 1.602e-19;          // charge (C)
-//     const Cm = 1e-6;              // F/cm^2
-//     const px_to_cm = 0.03e-7;     // 1 px = 0.03 nm = 3e-9 cm
-
-//     // convert to cm
-//     const w = width_px * px_to_cm;
-//     const h = height_px * px_to_cm;
-//     const d = depth_px * px_to_cm;
-
-//     const Q = (charge_inside - charge_outside) * e;
-//     const A = 2 * (w * h + w * d + h * d);
-//     const C = Cm * A;
-
-//     return (Q / C) * 1000; // Return voltage in mV
-// }
-
-// export function calculateMembraneState(base_x = BOX.base_x) {
-//     const state = {
-//         insideCharge: 0,
-//         outsideCharge: 0,
-//         kInside: 0,
-//         kOutside: 0,
-//         kGradient: 0,
-//         vmProxy: 0,
-//         vm: 0,
-//         equilibriumPotential: 0,
-//         efieldForce: 0,
-//         normalizedEfieldForce: 0
-
-//     };
-
-//     let totalAbsoluteCharge = 0;
-
-//     for (const ion of ION_SPAWNER.ion_population) {
-//         const isInside = ion.body.position.x < base_x;
-
-//         totalAbsoluteCharge += Math.abs(ion.charge);
-//         if (isInside) {
-//             state.insideCharge += ion.charge;
-//             if (ion.name === "K") state.kInside++;
-//         } else {
-//             state.outsideCharge += ion.charge;
-//             if (ion.name === "K") state.kOutside++;
-//         }
-//     }
-
-//     const totalK = state.kInside + state.kOutside;
-//     if (totalK > 0) {
-//         state.kGradient = (state.kOutside - state.kInside) / totalK;
-//     }
-
-//     state.chargeDifference = state.insideCharge - state.outsideCharge; // Simple proxy for Vm based on net charge difference
-
-//     if (totalAbsoluteCharge > 0) {
-//         // ELLECTRIC FIELD PROXY: -1 to +1 based on net charge distribution
-//         state.vmProxy = state.chargeDifference / totalAbsoluteCharge;
-//     }
-
-//     state.vm = getMembranePotential(state.insideCharge, state.outsideCharge);
-//     state.equilibriumPotential = EQUILIBRIUM_POTENTIAL;
-//     state.efieldForce = state.vm - state.equilibriumPotential;
-//     const normalizedDF = state.efieldForce / (Math.abs(state.equilibriumPotential) || 1);
-//     const clampedDF = Math.max(-1, Math.min(1, normalizedDF));
-//     state.normalizedEfieldForce = clampedDF;
-
-//     return state;
-// }
-
-// Temporary test logging
-// setInterval(() => {
-
-//     const membraneState = calculateMembraneState();
-
-//     const vm = membraneState.vm;
-//     const vmProxy = membraneState.vmProxy;
-//     const kGradient = membraneState.kGradient;
-//     const kInside = membraneState.kInside;
-//     const kOutside = membraneState.kOutside;
-//     const equilibriumPotential = membraneState.equilibriumPotential;
-//     const efieldForce = membraneState.efieldForce;
-
-
-
-//     console.log(
-//         "FLUX:", (membraneState.kGradient * membraneState.normalizedEfieldForce).toFixed(4),
-//         `vm: ${vm.toFixed(2)}/${equilibriumPotential.toFixed(2)} mV`,
-//         "efieldForce:", efieldForce.toFixed(2), "mV",
-//         "normalizedEfieldForce:", membraneState.normalizedEfieldForce.toFixed(2),
-//         // "vmProxy:", vmProxy.toFixed(2),
-//         // "kGrad:", kGradient.toFixed(2),
-//         // "kInside:", kInside,
-//         // "kOutside:", kOutside,
-//         // "modifiedKGrad:", modifiedKGradient.toFixed(2)
-//     );
-// }, 500);
-
-
 function resetForceVectors() {
     for (const ion of ION_SPAWNER.ion_population) {
         const body = ion.body;
@@ -202,7 +103,8 @@ Events.on(engine, "beforeUpdate", () => {
         const distToMembrane = Math.abs(ion.body.position.x - leakChannel.position.x);
         // If inward flux, affect only outside ions. If outward flux, affect only inside ions.
         // BUT don't reverse mid-crossing
-        const inChannelZone = distToMembrane < leakChannel.height * 0.5;
+        // const inChannelZone = distToMembrane < leakChannel.height;
+        const inChannelZone = true;
         if (inChannelZone && (leakChannel.isInside(ion) && FLUX > 0) || (!leakChannel.isInside(ion) && FLUX < 0)) continue;
 
         // Calculate distance and direction from ion to channel center
@@ -215,7 +117,7 @@ Events.on(engine, "beforeUpdate", () => {
         const perpY = leakChannel.normal.x;
         const lateralDist = Math.abs(dx * perpX + dy * perpY);
         const alongNormal = Math.abs(dx * leakChannel.normal.x + dy * leakChannel.normal.y);
-        const isIonAlongChannel = lateralDist < ion.radius * 3 && alongNormal < leakChannel.height * 1;
+        const isIonAlongChannel = lateralDist < ion.radius * 2 && alongNormal < leakChannel.height * 1;
 
         // Push away the undesired ion
         if (ion.name != leakChannel.permeable_ion) {
@@ -224,7 +126,8 @@ Events.on(engine, "beforeUpdate", () => {
             if (!isIonAlongChannel) continue;
             //  Push non-permeable ions away from channel opening (opposite to flux direction
             // const forceMagnitude = FLUX_FORCE_MAGNITUDE * (Math.abs(dist * 1.5) ** FLUX_LINEAR_PUSH_SCALAR);
-            const forceMagnitude = FLUX_FORCE_MAGNITUDE * (Math.abs(dist * 2) ** (FLUX_LINEAR_PUSH_SCALAR / 2));
+            // const forceMagnitude = FLUX_FORCE_MAGNITUDE * (Math.abs(dist) ** (FLUX_LINEAR_PUSH_SCALAR));
+            const forceMagnitude = FLUX_FORCE_MAGNITUDE * 50;
             const fluxDirection = FLUX >= 0 ? 1 : -1; // +1 for outward, -1 for inward
             const xDirection = forceMagnitude * fluxDirection * leakChannel.normal.x;
             const yDirection = forceMagnitude * fluxDirection * leakChannel.normal.y;
@@ -255,9 +158,9 @@ Events.on(engine, "beforeUpdate", () => {
                 }
             )
             if (isIonAlongChannel) {
-
-                const forceMagnitude = FLUX_FORCE_MAGNITUDE * (Math.abs(dist * 2));
-                // const forceMagnitude = FLUX_FORCE_MAGNITUDE * 30;
+                // const forceMagnitude = FLUX_FORCE_MAGNITUDE * (Math.abs(dist * 2) ** (FLUX_LINEAR_PUSH_SCALAR / 2));
+                // const forceMagnitude = FLUX_FORCE_MAGNITUDE * (Math.abs(dist * 2));
+                const forceMagnitude = FLUX_FORCE_MAGNITUDE * 50;
                 const fluxDirection = FLUX > 0 ? 1 : -1; // +1 for outward, -1 for inward
                 const xDirection = forceMagnitude * FLUX * -leakChannel.normal.x;
                 const yDirection = forceMagnitude * FLUX * -leakChannel.normal.y;

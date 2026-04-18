@@ -4,7 +4,7 @@ Neuro-Science Simulations is a 2D top-view experimental box that visualizes ion 
 
 ## Project Structure
 ```bash
-├── PROJECT-DESCRIPTION.MD
+├── README.MD
 ├── src
 │   ├── config
 │   │   └── config.js

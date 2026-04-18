@@ -1,97 +1,76 @@
+// WORLD CONFIG
+export const WORLD_WIDTH = 7000;
+export const WORLD_HEIGHT = 7000;
+// export const WORLD_BACKGROUND_COLOR = "#1b2c55";
+export const WORLD_BACKGROUND_COLOR = "#0d1b2a";
+export const WALL_THICKNESS = 50;
+export const WALL_COLOR = "#3f6fb5";
 
-// --------------------------------------------------| SYSTEM CONFIGURATION |-------------------------------------------------- //
+// 1px = 0.03nm
+// 10px = 0.3nm
+// 1000px = 30nm
+// 2000px = 60nm
+// 3000px = 90nm
 
-
-export const CANVAS_WIDTH = 1400;
-export const CANVAS_HEIGHT = 950;
-export const cx = CANVAS_WIDTH / 2; // a convention for the center of canvas (x)
-export const cy = CANVAS_HEIGHT / 2; // a convention for the center of canvas (y)
-export const CANVAS_BACKGROUND_COLOR = "#0f172a";
-
-
-// --------------------------------------------------| PARTICLE CONFIGURATION |-------------------------------------------------- //
-
-
-const radius_factor = 0.6 // development feature, scales the size of all particles on the screen
+export const BOX = {
+  base_x: 0,
+  base_y: 0,
+  width: 4000,
+  height: 3000,
+  depth: 3000,
+  thickness: 50,
+  color: "#c9a84c"
+  // color:"#ce3e3e"
+}
 
 // pretty self-explanatory, the configuration for each ion type. 
-// Used for easy access to ion properties when creating particles.
+export const ion_radius_factor = 1 // development feature, scales the size of all particles on the screen
 export const ionConfig = {
-  Na: { charge: +1, radius: 15 * radius_factor, color: "#38bdf8" },
-  K: { charge: +1, radius: 15 * radius_factor, color: "#f87171" },
-  Cl: { charge: -1, radius: 14 * radius_factor, color: "#a78bfa" },
-  Ca: { charge: +2, radius: 18 * radius_factor, color: "#fbbf24" },
-  Mg: { charge: +2, radius: 17 * radius_factor, color: "#34d399" }
+  K: { charge: +1, radius: 10 * ion_radius_factor, color: "#f87171" },
+  Na: { charge: +1, radius: 15 * ion_radius_factor, color: "#38bdf8" },
+  Cl: { charge: -1, radius: 14 * ion_radius_factor, color: "#a78bfa" },
+  Ca: { charge: +2, radius: 18 * ion_radius_factor, color: "#fbbf24" },
+  Mg: { charge: +2, radius: 17 * ion_radius_factor, color: "#34d399" },
+  A: { charge: -1, radius: 14 * ion_radius_factor, color: "#3138b6" }
+}
+
+export const distributionConfig = {
+  multiplier: 10,
+  K: { inside: 20, outside: 1 },
+  A: { inside: 20, outside: 1 }
 }
 
 export const ION_NAMES = Object.keys(ionConfig);
 
-//  PURPOSE OF MEMBRANE: 
-// Membane will be needed for channel management: opening, closing, applying force, repelling, etc.
-// It also blocks the particles from escaping the cell unless the channels are open. 
-export const MEMBRANE = {
-  segments: [], // Contains the segment/bodies that make up the membrane. Used for channel and collision management.
-  radius: 300, // literally, the size of the membrane.
-  segment_num: 40, // ↑ = tighter packing / less gaps.
-  segment_length: 20, // the side to side size of each segment.
-  segment_thickness: 50, // in-to-out size of each segment.
-  segment_chamfer: 2, // the roundness of the segment edges.
-  segment_color: "#2557afa9", // the color of the membrane segments.
-  segment_friction: 0.0 // No friction for smooth sliding of particles along the membrane
-};
-
-export const CHANNEL_PROXIMITY = 300; // Distance at which the channels affect the particles near by
-export const CHANNEL_IMPACT_COLOR = "#37ff005e";  // The color indicating the range of channel force impact
-export const LEAK_CONFIG = {
-  Na: { segment_indices: [0, 10, 20, 30] },
-  K: { segment_indices: [1, 11, 21, 31] },
-  Cl: { segment_indices: [2, 12, 22, 32] },
-  Ca: { segment_indices: [3, 13, 23, 33] },
-  Mg: { segment_indices: [4, 14, 24, 34] }
-};
-export const LEAK_INDICES = LEAK_CONFIG.Na.segment_indices;
 
 
-// PURPOSE OF CYTOPLASM:
-// Cytoplasm is used for calculating the concentration of ions inside of the cell to determine the gradient.
-// It is easier to calculate how many bodies (ions) are inside another body (cytoplasm) than to calculate how many bodies are inside a general area (membrane).
-// That's why we added it.
-export const CYTOPLASM = {
-  body: null, // The inner area of the cell, used for calculating the concentration of ions inside of the cell to determine the gradient.
-  radius: MEMBRANE.radius - MEMBRANE.segment_thickness / 2, // literally the size of the cytoplasm, which is (membrane size - segment size)
-  color: "#2ab5b3bc" // the color of the cytoplasm
-};
-// Reason for using a property of CYTOPLASM is because we cannot reassing a value to an exported variable, but we can change the properties of an exported object.
-// And the cytoplasm is built using a library function, so we can't just create it in the config file, we have to create it in the actual script. 
+
+export const physicsConfig = {
+  GLOBAL_TEMPERATURE_CELCIUS: 37,
+  GLOBAL_TEMPERATURE_KELVIN: 310,
+
+  ACTIVATE_THERMAL_JITTER: true,
+  THERMAL_JITTER_MAGNITUDE: 0.00005, // Base magnitude for thermal jitter, can be scaled by temperature
+
+  ACTIVATE_COULOMB_FORCE: true,
+  COULOMB_FORCE_MAGNITUDE: 0.0002,
+  COULOMB_MIN_DISTANCE_SCALAR: 3, // ions on distance of 3x diameter or less will experience a capped force to avoid instability.,
 
 
-// --------------------------------------------------| RENDER CONFIGURATION |-------------------------------------------------- //
+  FLUX_FORCE_MAGNITUDE: 0.00001, // Attraction force towards the channel for permeable ions.
+  FLUX_LINEAR_PUSH_SCALAR: 1.05, // Exponentially increases the push force as ions get closer to the channel
 
 
-export const ION_POPULATION = []; // List of all ion particles in the simulation, used for easy access and management of ions.
-
-export const FORCE_VECTOR_LENGTH = 28; // Arrow length in pixels (normalized force direction).
-export const FORCE_VECTOR_WIDTH = 2; // Arrow line width.
-export const FORCE_VECTOR_HEAD_SIZE = 8; // Arrow head size in pixels.
-export const MIN_FORCE_VECTOR_MAGNITUDE = 1e-5; // Minimal force needed to affect the body to draw an arrow (filters noise)
-
-
-// Why radius^2? at small scale the forces are very strong, so we need to scale them down more aggressively to avoid chaos.
-export const ION_FIELD_RADIUS = 160 * radius_factor * radius_factor * radius_factor; // Radius within which ions will attract/repel each other.
-export const ION_FORCE_SCALE = 0.02 * radius_factor;   // Scales Coulombic repulsion/attraction between ions
-export const RANDOM_JITTER_FORCE = 0.0002 * radius_factor * radius_factor; // Random jitter to simulate thermal motion (temperature effect)
-export const GLOBAL_TEMPERATURE = 36; // CURRENTLY UNDER DEVELOPMENT: Higher temperature = more vibration (simulation only)
-
-
-// STATS UPDATER
-export const _createZeroIonDict = () => Object.fromEntries(Object.keys(ionConfig).map(ion => [ion, 0])); // A helper function to initial a zero dictionary with available ion, {Na:0, K:0, ...}
-export const ION_STATS = {
-  TOTAL_IONS_NUM: 0,
-  INTRA_IONS_NUM: 0,
-  EXTRA_IONS_NUM: 0,
-  TOTAL_IONS_COUNT: _createZeroIonDict(),
-  INTRA_IONS_COUNT: _createZeroIonDict(),
-  EXTRA_IONS_COUNT: _createZeroIonDict(),
-  ION_GRADIENTS: _createZeroIonDict(), // ratio of INTRA to EXTRA for each ion.
-  ION_RATIOS: _createZeroIonDict()
 }
+physicsConfig.GLOBAL_TEMPERATURE_KELVIN = physicsConfig.GLOBAL_TEMPERATURE_CELCIUS + 273.15;
+
+// export const renderConfig = {
+//   SHOW_LABELS: true,
+//   MIN_ZOOM_SCALE_TO_SHOW_LABELS: 0.7,
+//   LABEL_COLOR: "#000",
+//   LABLE_FONT_SIZE: 15,
+//   SHOW_FORCE_RADIUS: false,
+//   SHOW_FORCE_DIRECTION: true,
+//   SHOW_CHANNEL_IMPACT_RADIUS: true,
+//   SHOW_LEAK_CHANNEL_LABELS: true,
+// }

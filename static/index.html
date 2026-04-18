@@ -10,82 +10,43 @@
 <body>
   <canvas id="world"></canvas>
 
-  <div id="panel-toggles">
-    <button id="toggle-stats-panel" type="button">Hide Stats</button>
-    <button id="toggle-control-panel" type="button">Hide Controls</button>
-  </div>
+  <div id="membrane-state-panel"></div>
 
-  <div id="stats-panel">
-    <h3>Simulation Stats</h3>
+  <div id="simulation-info-panel">
+    <div class="controls">
 
-    <div class="stat-row"><span>Selected ion:</span><span id="stat-ion">Na</span></div>
-    <div class="stat-row"><span>Gradient (inside/total):</span><span id="stat-gradient">0.00</span></div>
-    <div class="stat-row"><span>Intra : Extra:</span><span id="stat-intra-extra">0% : 0%</span></div>
+      <div class="timescale">
+        <button class="start-btn btn" type="button" aria-label="Start simulation">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <polygon points="6,3 17,10 6,17" fill="white" />
+          </svg>
+        </button>
 
-    <hr>
+        <button class="pause-btn btn" type="button" aria-label="Pause simulation">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <rect x="4" y="3" width="4" height="14" rx="1" fill="white" />
+            <rect x="12" y="3" width="4" height="14" rx="1" fill="white" />
+          </svg>
+        </button>
 
-    <div class="stat-row"><span>Inside count:</span><span id="stat-intra-count">0</span></div>
-    <div class="stat-row"><span>Outside count:</span><span id="stat-extra-count">0</span></div>
-    <div class="stat-row"><span>Total count:</span><span id="stat-total-count">0</span></div>
+        <button class="reset-btn btn" type="button" aria-label="Reset simulation">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M16 6V2.5L13.5 5A6 6 0 1 0 16 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
 
-    <hr>
-
-    <h4 class="panel-subtitle">Quick Concentration Indicator</h4>
-    <div id="quick-concentration-list"></div>
-  </div>
-
-  <div id="control-panel">
-    <div class="input-group">
-      <label>1. Select Ion:</label>
-      <div id="ion-buttons-grid">
-        <button id="na-button" class="ion-button active">Na</button>
-        <button id="k-button" class="ion-button">K</button>
-        <button id="cl-button" class="ion-button">Cl</button>
-        <button id="ca-button" class="ion-button">Ca</button>
-        <button id="mg-button" class="ion-button">Mg</button>
+      <div class="speed">
+        <button class="speed-display" type="button">1.0</button>
+        <input class="speed-slider" type="range" min="0.1" max="3.0" step="0.1" value="1.0">
       </div>
     </div>
-
-    <div class="input-group">
-      <label>2. Number of Particles:</label>
-      <input type="number" id="particle-count" value="5" min="1" max="100">
-    </div>
-
-    <div class="input-group">
-      <label>3. Location:</label>
-      <div class="radio-group">
-        <label><input type="radio" name="location" value="center" checked> Center</label>
-        <label><input type="radio" name="location" value="top"> Top</label>
-        <label><input type="radio" name="location" value="bottom"> Bottom</label>
-        <label><input type="radio" name="location" value="left"> Left</label>
-        <label><input type="radio" name="location" value="right"> Right</label>
-        <label><input type="radio" name="location" value="custom"> Custom</label>
-      </div>
-    </div>
-
-    <div id="custom-coords" style="display: none;">
-      <div class="coord-row">
-        <label>X:</label>
-        <input type="number" id="coord-x" value="400">
-      </div>
-      <div class="coord-row">
-        <label>Y:</label>
-        <input type="number" id="coord-y" value="400">
-      </div>
-      <div id="coord-error" class="error-msg"></div>
-    </div>
-
-    <button id="add-button" class="action-button">Add Particles</button>
-    <div id="channel-control">
-      <button id="channel-open-button">Open Channels</button>
-      <button id="channel-close-button">Close Channels</button>
-      <button id="channel-openall-button">Open All</button>
-      <button id="channel-closeall-button">Close All</button>
-    </div>
+    <div class="logs"></div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
   <script type="module" src="../src/main.js"></script>
+  <script type="module" src="../src/ui/controls.js"></script>
 </body>
 
 </html>

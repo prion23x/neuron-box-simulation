@@ -1,6 +1,19 @@
 # Project Chart
 
-Neuro-Science Simulations is a 2D top-view experimental box that visualizes ion movement across a membrane. The world is split into two compartments: left = “inside,” right = “outside,” separated by a phospholipid bilayer and configurable leak channels. Users can start, pause, reset, and change simulation speed while watching concentration gradients, electric forces, membrane potential, and other live readouts in a simple but physically grounded demo. The simulation uses vanilla JavaScript, Canvas, and Matter.js for motion, collision handling, and force-driven dynamics. Navigation is map-like so you can drag, pan, and zoom to explore the scene beyond a single viewport.
+Neuro-Science Simulations is a 2D top-view experimental box that visualizes ion movement across a membrane. 
+
+<img src="./static/assets/img-2.png">
+
+<hr>
+
+The world is split into two compartments: left = “inside,” right = “outside,” separated by a phospholipid bilayer and configurable leak channels.
+
+
+<img src="./static/assets/img-1.png">
+
+<hr>
+
+Users can start, pause, reset, and change simulation speed while watching concentration gradients, electric forces, membrane potential, and other live readouts in a simple but physically grounded demo. The simulation uses vanilla JavaScript, Canvas, and Matter.js for motion, collision handling, and force-driven dynamics. Navigation is map-like so you can drag, pan, and zoom to explore the scene beyond a single viewport.
 
 ## Project Structure
 ```bash

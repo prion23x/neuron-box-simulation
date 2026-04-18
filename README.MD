@@ -4,7 +4,7 @@ Neuro-Science Simulations is a 2D top-view experimental box that visualizes ion 
 
 The world is split into two compartments: left = “inside,” right = “outside,” separated by a phospholipid bilayer and configurable leak channels.
 
-![img-2](./static/assets/img-2.png)
+![img-2](./static/assets/img-2-general.png)
 
 ![img-3](./static/assets/img-3.png)
 *After Ion redistribution (Flux:0, VM: -80mv)*
